@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline';">
+
+  <title id="windowTitle">imaggio</title>
+
+  <script src="vendor/jquery/jquery.min.js"></script>
+  <link rel="stylesheet" href="vendor/fontawesome/css/all.min.css">
+  <link rel="stylesheet" href="vendor/bulma/bulma.min.css">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+
+<body>
+  <div id="app">
+    <section class="hero is-fullheight">
+      <div class="hero-head navbar is-fixed-top">
+        <div id="navTop">
+          <!-- navbar controls, minimize, close, logo (html/navigation/navTop.html) -->
+        </div>
+      </div>
+      <div class="hero-body has-text-centered">
+        <div class="container">
+          <div id="p2Container" class="container tab-content level-item current">
+            <!-- p2 Container (html/tabs/p2.html) -->
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</body>
+
+<footer>
+  <script src="js/renderer/loadContents.tauri.js"></script>
+  <script defer src="js/renderer/navigation.tauri.js"></script>
+  <script defer src="js/renderer-tauri.js"></script>
+</footer>
+
+</html>
