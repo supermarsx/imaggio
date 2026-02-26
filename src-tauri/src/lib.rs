@@ -132,6 +132,120 @@ fn pdf_extract_text(input: &Path) -> Result<Vec<String>, String> {
   Ok(vec![output.to_string_lossy().to_string()])
 }
 
+fn pdf_to_images(input: &Path, format: &str, scale: u32) -> Result<Vec<String>, String> {
+  // PDF to image conversion using external poppler-utils (pdftoppm/pdftocairo)
+  // This is more reliable than PDFium bindings for cross-platform support
+  
+  use std::process::Command;
+  
+  let output_dir = input.parent().unwrap_or_else(|| Path::new("."));
+  let stem = input.file_stem().and_then(|s| s.to_str()).unwrap_or("output");
+  
+  // Determine DPI based on scale (rough approximation)
+  let dpi = (scale / 8).to_string(); // 2000px ≈ 250dpi, 4000px ≈ 500dpi, 8000px ≈ 1000dpi
+  
+  let output_prefix = output_dir.join(stem);
+  
+  // Use pdftoppm for raster formats
+  let cmd_result = match format {
+    "jpeg" | "jpg" => {
+      Command::new("pdftoppm")
+        .args(&[
+          "-jpeg",
+          "-r", &dpi,
+          input.to_str().unwrap(),
+          output_prefix.to_str().unwrap(),
+        ])
+        .output()
+    }
+    "png" => {
+      Command::new("pdftoppm")
+        .args(&[
+          "-png",
+          "-r", &dpi,
+          input.to_str().unwrap(),
+          output_prefix.to_str().unwrap(),
+        ])
+        .output()
+    }
+    "tiff" | "tif" => {
+      Command::new("pdftoppm")
+        .args(&[
+          "-tiff",
+          "-r", &dpi,
+          input.to_str().unwrap(),
+          output_prefix.to_str().unwrap(),
+        ])
+        .output()
+    }
+    "ppm" => {
+      Command::new("pdftoppm")
+        .args(&[
+          "-r", &dpi,
+          input.to_str().unwrap(),
+          output_prefix.to_str().unwrap(),
+        ])
+        .output()
+    }
+    _ => return Err(format!("Unsupported image format: {}", format))
+  };
+
+  match cmd_result {
+    Ok(output) if output.status.success() => {
+      // List generated files
+      let mut generated_files = Vec::new();
+      
+      if let Ok(entries) = std::fs::read_dir(output_dir) {
+        for entry in entries.flatten() {
+          let path = entry.path();
+          if let Some(name) = path.file_name().and_then(|n| n.to_str()) {
+            if name.starts_with(stem) && name.ends_with(format) {
+              generated_files.push(path.to_string_lossy().to_string());
+            }
+          }
+        }
+      }
+      
+      if generated_files.is_empty() {
+        Err("No output files were generated".to_string())
+      } else {
+        Ok(generated_files)
+      }
+    }
+    Ok(output) => {
+      let stderr = String::from_utf8_lossy(&output.stderr);
+      Err(format!("pdftoppm failed: {}", stderr))
+    }
+    Err(e) => {
+      Err(format!("Failed to run pdftoppm (is poppler-utils installed?): {}", e))
+    }
+  }
+}
+
+fn pdf_split_pages(_input: &Path) -> Result<Vec<String>, String> {
+  // PDF page splitting with lopdf is complex and requires proper page tree manipulation
+  // For a complete implementation, consider using:
+  // 1. qpdf library bindings
+  // 2. Calling external tools like pdftk or qpdf via std::process::Command
+  // 3. A more feature-complete Rust PDF library
+  
+  Err("PDF splitting not yet implemented. Use external tools like pdftk or qpdf for now.".to_string())
+}
+
+fn pdf_compress(input: &Path, _quality: &str) -> Result<Vec<String>, String> {
+  // Note: True PDF compression requires Ghostscript.
+  // This is a placeholder that copies the file with a note.
+  // For production, you would either:
+  // 1. Call Ghostscript via std::process::Command
+  // 2. Use a Rust PDF library that supports compression
+  // 3. Keep using the external binary
+  
+  let output = suffix_path(input, "_compressed", None);
+  std::fs::copy(input, &output).map_err(|e| e.to_string())?;
+  
+  Ok(vec![output.to_string_lossy().to_string()])
+}
+
 #[tauri::command]
 fn convert(req: ConvertRequest) -> Result<ConvertResponse, String> {
   let input = PathBuf::from(&req.input_path);
@@ -155,9 +269,37 @@ fn convert(req: ConvertRequest) -> Result<ConvertResponse, String> {
       pdf_clone_metadata_in_place(Path::new(&source), &input)?
     }
 
+    // PDF to JPEG conversions
+    "pdf2jpeglow" => pdf_to_images(&input, "jpeg", 2000)?,
+    "pdf2jpegmedium" => pdf_to_images(&input, "jpeg", 4000)?,
+    "pdf2jpeghigh" => pdf_to_images(&input, "jpeg", 8000)?,
+
+    // PDF to PNG conversions
+    "pdf2pnglow" => pdf_to_images(&input, "png", 2000)?,
+    "pdf2pngmedium" => pdf_to_images(&input, "png", 4000)?,
+    "pdf2pnghigh" => pdf_to_images(&input, "png", 8000)?,
+
+    // PDF to TIFF conversions
+    "pdf2tifflow" => pdf_to_images(&input, "tiff", 2000)?,
+    "pdf2tiffmedium" => pdf_to_images(&input, "tiff", 4000)?,
+    "pdf2tiffhigh" => pdf_to_images(&input, "tiff", 8000)?,
+
+    // PDF to PPM conversions
+    "pdf2ppmlow" => pdf_to_images(&input, "ppm", 2000)?,
+    "pdf2ppmmedium" => pdf_to_images(&input, "ppm", 4000)?,
+    "pdf2ppmhigh" => pdf_to_images(&input, "ppm", 8000)?,
+
+    // PDF splitting
+    "pdf2split" => pdf_split_pages(&input)?,
+
+    // PDF compression (placeholder - needs Ghostscript integration)
+    "pdf2pdflow" => pdf_compress(&input, "screen")?,
+    "pdf2pdfmedium" => pdf_compress(&input, "ebook")?,
+    "pdf2pdfhigh" => pdf_compress(&input, "printer")?,
+
     other => {
       return Err(format!(
-        "Conversion type '{other}' not implemented in Tauri backend yet"
+        "Conversion type '{other}' not implemented in Tauri backend yet. SVG, PDF/A, stamping, doc2pdf, and joining require additional dependencies."
       ))
     }
   };
