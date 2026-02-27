@@ -28,3 +28,6 @@ image = { version = "0.25", default-features = true }
 lopdf = "0.39"
 pdf-extract = "0.10"
 printpdf = "0.7"
+pdfium-bind = "0.1"
+flate2 = "1.0"
+base64 = "0.22"

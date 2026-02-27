@@ -3,7 +3,9 @@ pub mod pdf_extract;
 pub mod pdf_gs;
 pub mod pdf_images;
 pub mod pdf_meta;
+pub mod pdf_pdfa;
 pub mod pdf_split;
+pub mod pdf_svg;
 pub mod pdf_text;
 
 use serde::{Deserialize, Serialize};
@@ -82,8 +84,8 @@ pub fn dispatch(req: ConvertRequest) -> Result<ConvertResponse, String> {
         "pdf2ppmmedium" => pdf_images::to_images(&input, "ppm", 500)?,
         "pdf2ppmhigh" => pdf_images::to_images(&input, "ppm", 1000)?,
 
-        // PDF to SVG (poppler)
-        "pdf2svg" => pdf_images::to_svg(&input)?,
+        // PDF to SVG (native)
+        "pdf2svg" => pdf_svg::to_svg(&input)?,
 
         // PDF extract embedded images/attachments (poppler)
         "pdf2extract" => pdf_extract::extract_images(&input)?,
@@ -94,11 +96,11 @@ pub fn dispatch(req: ConvertRequest) -> Result<ConvertResponse, String> {
         "pdf2pdfmedium" => pdf_gs::compress(&input, "ebook")?,
         "pdf2pdfhigh" => pdf_gs::compress(&input, "printer")?,
 
-        // PDF/A conversion (ghostscript)
-        "pdf2pdfa" => pdf_gs::to_pdfa(&input, None)?,
-        "pdf2pdfalow" => pdf_gs::to_pdfa(&input, Some("screen"))?,
-        "pdf2pdfamedium" => pdf_gs::to_pdfa(&input, Some("ebook"))?,
-        "pdf2pdfahigh" => pdf_gs::to_pdfa(&input, Some("printer"))?,
+        // PDF/A conversion (native)
+        "pdf2pdfa" => pdf_pdfa::to_pdfa(&input, None)?,
+        "pdf2pdfalow" => pdf_pdfa::to_pdfa(&input, Some("screen"))?,
+        "pdf2pdfamedium" => pdf_pdfa::to_pdfa(&input, Some("ebook"))?,
+        "pdf2pdfahigh" => pdf_pdfa::to_pdfa(&input, Some("printer"))?,
 
         // PDF stamping (ghostscript)
         "pdfstamp1" => {
