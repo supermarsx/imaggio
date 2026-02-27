@@ -96,11 +96,23 @@ pub fn dispatch(req: ConvertRequest) -> Result<ConvertResponse, String> {
         "pdf2pdfmedium" => pdf_gs::compress(&input, "ebook")?,
         "pdf2pdfhigh" => pdf_gs::compress(&input, "printer")?,
 
-        // PDF/A conversion (native)
-        "pdf2pdfa" => pdf_pdfa::to_pdfa(&input, None)?,
-        "pdf2pdfalow" => pdf_pdfa::to_pdfa(&input, Some("screen"))?,
-        "pdf2pdfamedium" => pdf_pdfa::to_pdfa(&input, Some("ebook"))?,
-        "pdf2pdfahigh" => pdf_pdfa::to_pdfa(&input, Some("printer"))?,
+        // PDF/A conversion (native) — all conformance levels
+        "pdf2pdfa" | "pdf2pdfa2b" => {
+            pdf_pdfa::to_pdfa(&input, pdf_pdfa::PdfaLevel::A2b, None)?
+        }
+        "pdf2pdfa1b" => pdf_pdfa::to_pdfa(&input, pdf_pdfa::PdfaLevel::A1b, None)?,
+        "pdf2pdfa1a" => pdf_pdfa::to_pdfa(&input, pdf_pdfa::PdfaLevel::A1a, None)?,
+        "pdf2pdfa2a" => pdf_pdfa::to_pdfa(&input, pdf_pdfa::PdfaLevel::A2a, None)?,
+        "pdf2pdfa2u" => pdf_pdfa::to_pdfa(&input, pdf_pdfa::PdfaLevel::A2u, None)?,
+        "pdf2pdfa3" => pdf_pdfa::to_pdfa(&input, pdf_pdfa::PdfaLevel::A3, None)?,
+        "pdf2pdfa4" => pdf_pdfa::to_pdfa(&input, pdf_pdfa::PdfaLevel::A4, None)?,
+        "pdf2pdfa4f" => pdf_pdfa::to_pdfa(&input, pdf_pdfa::PdfaLevel::A4f, None)?,
+        "pdf2pdfa4e" => pdf_pdfa::to_pdfa(&input, pdf_pdfa::PdfaLevel::A4e, None)?,
+
+        // PDF/X conversion (native) — print production profiles
+        "pdf2pdfx1a" => pdf_pdfa::to_pdfx(&input, pdf_pdfa::PdfxLevel::X1a)?,
+        "pdf2pdfx3" => pdf_pdfa::to_pdfx(&input, pdf_pdfa::PdfxLevel::X3)?,
+        "pdf2pdfx4" => pdf_pdfa::to_pdfx(&input, pdf_pdfa::PdfxLevel::X4)?,
 
         // PDF stamping (ghostscript)
         "pdfstamp1" => {
