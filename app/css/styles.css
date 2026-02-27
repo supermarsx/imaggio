@@ -1,22 +1,190 @@
+/* ===== Theme Variables ===== */
+:root {
+  --bg-primary: #ffffff;
+  --bg-secondary: #f5f5f5;
+  --bg-navbar: #f5f5f5;
+  --text-primary: #363636;
+  --text-secondary: #4a4a4a;
+  --text-label: #363636;
+  --border-color: #dbdbdb;
+  --button-bg: #ffffff;
+  --button-text: #363636;
+  --button-border: #dbdbdb;
+  --button-hover-bg: #f5f5f5;
+  --select-bg: #ffffff;
+  --select-text: #363636;
+  --link-color: #000000;
+  --shadow-color: rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="dark"] {
+  --bg-primary: #1a1a2e;
+  --bg-secondary: #16213e;
+  --bg-navbar: #0f3460;
+  --text-primary: #e0e0e0;
+  --text-secondary: #b0b0b0;
+  --text-label: #d0d0d0;
+  --border-color: #3a3a5c;
+  --button-bg: #16213e;
+  --button-text: #e0e0e0;
+  --button-border: #3a3a5c;
+  --button-hover-bg: #1a2745;
+  --select-bg: #16213e;
+  --select-text: #e0e0e0;
+  --link-color: #e0e0e0;
+  --shadow-color: rgba(0, 0, 0, 0.3);
+}
+
+/* ===== Global Overrides ===== */
+html {
+  overflow: hidden;
+}
+
+body,
+html {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+/* ===== Navbar ===== */
+.navbar,
+.navbar.has-background-white-ter {
+  background-color: var(--bg-navbar) !important;
+}
+
+.navbar-burger span {
+  background-color: var(--text-primary);
+}
+
+.navbar-burger.has-text-danger span {
+  background-color: #f14668;
+}
+
 #navButtonExit {
   margin-left: 0;
 }
 
 .logo-text {
   font-size: larger;
-  color: #000;
+  color: var(--link-color);
   font-family: Courier, "Lucida Console", monospace;
 }
 
-html {
-  overflow: hidden;
+#navButtonTheme {
+  border: none;
+  background: transparent;
+  cursor: pointer;
 }
 
+#navButtonTheme i {
+  color: var(--text-primary);
+  font-size: 1rem;
+}
+
+/* ===== Hero ===== */
+.hero {
+  background-color: var(--bg-primary);
+}
+
+/* ===== Layout ===== */
 .p2Container {
   margin-top: 7vh;
   min-height: 100vh;
 }
 
+/* ===== Buttons ===== */
+.button {
+  background-color: var(--button-bg);
+  color: var(--button-text);
+  border-color: var(--button-border);
+}
+
+.button:hover {
+  background-color: var(--button-hover-bg);
+  color: var(--button-text);
+  border-color: var(--button-border);
+}
+
+.button.is-success {
+  background-color: #48c774;
+  color: #fff;
+}
+
+.button.is-danger {
+  background-color: #f14668;
+  color: #fff;
+}
+
+.no-borders {
+  border: none;
+}
+
+/* ===== Select / Dropdown ===== */
+.select select {
+  background-color: var(--select-bg);
+  color: var(--select-text);
+  border-color: var(--button-border);
+}
+
+.select select option {
+  background-color: var(--select-bg);
+  color: var(--select-text);
+}
+
+.select::after {
+  border-color: var(--text-secondary);
+}
+
+/* ===== Labels & Text ===== */
+.label {
+  color: var(--text-label);
+}
+
+tag {
+  color: var(--text-primary);
+}
+
+.separator {
+  font-weight: 500;
+}
+
+/* ===== Checkbox ===== */
+input[type="checkbox"] {
+  font-size: 1rem;
+  padding: 10px;
+  transform: scale(1.5);
+  margin: 3px;
+}
+
+.checkbox {
+  color: var(--text-primary);
+}
+
+/* ===== Misc ===== */
+.extended2 {
+  margin-top: 5px;
+  margin-bottom: 10px;
+}
+
+.is-hidden {
+  display: none;
+}
+
+.box-shadow-5 {
+  box-shadow: 0 2px 5px var(--shadow-color);
+}
+
+/* ===== User Select ===== */
+#SOProcessFolderContainer,
+#SOSelect,
+#S2Two,
+#S1Label,
+#S2OneLabel,
+#S3Label {
+  user-select: none;
+}
+
+/* ===== Processing Animation ===== */
 #p2ConvertingButton {
   animation: fadeInFromNone 0.5s ease-in-out;
   animation-duration: 4s;
@@ -26,69 +194,23 @@ html {
 @keyframes fadeInFromNone {
   0% {
     display: block;
-    opacity: .5;
+    opacity: 0.5;
   }
-
   1% {
     display: block;
-    opacity: .5;
+    opacity: 0.5;
   }
-
   50% {
     display: block;
     opacity: 1;
   }
-
   100% {
     display: block;
-    opacity: .5;
+    opacity: 0.5;
   }
 }
 
-.is-hidden {
-  display: none;
-}
-
-.separator {
-  font-weight: 500;
-}
-
-.extended2 {
-  margin-top: 5px;
-  margin-bottom: 10px;
-}
-
-input[type="checkbox"] {
-  font-size: 1rem;
-  padding: 10px;
-  transform: scale(1.5);
-  margin: 3px;
-}
-
-#SOProcessFolderContainer {
-  user-select: none;
-}
-
-#SOSelect {
-  user-select: none;
-}
-
-#S2Two {
-  user-select: none;
-}
-
-#S1Label {
-  user-select: none;
-}
-
-#S2OneLabel {
-  user-select: none;
-}
-
-#S3Label {
-  user-select: none;
-}
-
+/* ===== Media Queries ===== */
 @media screen and (min-width: 1024px) {
   .navbar-burger {
     display: block;

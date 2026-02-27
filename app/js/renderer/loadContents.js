@@ -3,27 +3,25 @@
 /*
   loadContents (self-executed)
     Loads application contents
- */
+*/
 (async function loadContents() {
   loadHtml();
 })();
 
 /*
   Load language only when document is ready
- */
+*/
 $(document).ready(() => {
   loadLanguage();
   return;
 });
 
 /*
-  loadLanguage (self-executing)
+  loadLanguage
     Loads the adequate language onto the app, defaults to english
- */
+*/
 function loadLanguage() {
   var language = detectLanguage();
-
-  ipcRenderer.send('language:update', language);
 
   var languageFile = getLanguageFile(language);
 
@@ -36,8 +34,8 @@ function loadLanguage() {
 
 /*
   getLanguageFile
-    Gets the langauge file
- */
+    Gets the language file
+*/
 function getLanguageFile(language) {
   var languagePath = getLanguagePathObject();
   languagePath = { ...languagePath,
@@ -59,31 +57,21 @@ function getLanguageFile(language) {
   return jsonFile;
 }
 
-/*
-  getLanguagePathObject
- */
 function getLanguagePathObject() {
-  var languagePathObject = {
-    path: '../js/locale/',
+  return {
+    path: 'js/locale/',
     extension: '.json'
   };
-
-  return languagePathObject;
 }
 
-/*
-  getLanguageFullPathVar
- */
 function getLanguageFullPathVar(languagePath) {
-  var languageFullPathVar = `${languagePath.path}${languagePath.language}${languagePath.extension}`;
-
-  return languageFullPathVar;
+  return `${languagePath.path}${languagePath.language}${languagePath.extension}`;
 }
 
 /*
   loadHtml
     Loads HTML files inside the renderer
- */
+*/
 function loadHtml() {
   var base = getHtmlPathObject();
   var fullPath = getHtmlFullPathObject(base);
@@ -96,31 +84,21 @@ function loadHtml() {
   return;
 }
 
-/*
-  getFullPathObject
-    Compiles/gets full path object
- */
 function getHtmlFullPathObject(baseVar) {
   var {
     subfolder,
     filenames
   } = baseVar;
 
-  var fullPathObject = {
+  return {
     navTop: `${baseVar.path}${subfolder.nav}${filenames.navTop}`,
     p2Container: `${baseVar.path}${subfolder.tabs}${filenames.p2Container}`
   };
-
-  return fullPathObject;
 }
 
-/*
-  getPathObject
-    Gets path object for navigation files
- */
 function getHtmlPathObject() {
-  var pathObject = {
-    path: './',
+  return {
+    path: 'html/',
     subfolder: {
       nav: 'navigation/',
       tabs: 'tabs/'
@@ -130,14 +108,8 @@ function getHtmlPathObject() {
       p2Container: 'p2.html'
     }
   };
-
-  return pathObject;
 }
 
-/*
-  detectLanguage
-    Get user language
- */
 function detectLanguage() {
   return navigator.language;
 }

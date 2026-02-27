@@ -1,94 +1,69 @@
 // jshint esversion: 8
 
-/*
-  $(document).on('drop', function(...) {...});
-    Prevent drop redirect
-  parameters
-    event (object)
- */
-$(document).on('drop', function(event) {
-  ipcRenderer.send('app:debug', "Preventing drag and drop redirect");
-  event.preventDefault();
+function getTauriWindow() {
+  const w = window.__TAURI__?.window;
+  if (!w) return null;
+  if (typeof w.getCurrentWindow === 'function') return w.getCurrentWindow();
+  if (w.appWindow) return w.appWindow;
+  return null;
+}
 
+/*
+  Theme: restore saved preference or detect system preference
+*/
+(function initTheme() {
+  var saved = localStorage.getItem('theme');
+  var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  var theme = saved || (prefersDark ? 'dark' : 'light');
+  document.documentElement.setAttribute('data-theme', theme);
+})();
+
+/*
+  Prevent drop redirect
+*/
+$(document).on('drop', function(event) {
+  event.preventDefault();
   return false;
 });
 
-/*
-  $(document).on('dragover', function(...) {...});
-    Prevent drag over redirect
-  parameters
-    event (object)
- */
 $(document).on('dragover', function(event) {
   event.preventDefault();
-
   return false;
 });
 
 /*
-  $('#navButtonDevtools').click(function() {...});
-    On click: Button toggle developer tools
- */
-$('#navButtonDevtools').click(function() {
-  remote.getCurrentWindow().toggleDevTools();
-  ipcRenderer.send('app:debug', "#navButtonDevtools was clicked");
-
-  return;
-});
-
-
-/*
-  $('.delete').click(function() {...});
-    On click: Delete open notifications
- */
-$('.delete').click(function() {
-  ipcRenderer.send('app:debug', ".delete (notifications) was clicked");
-  var notificationId = $(this).attr('data-notif');
-  $('#' + notificationId).addClass('is-hidden');
-
-  return;
+  Theme toggle button
+*/
+$(document).on('click', '#navButtonTheme', function() {
+  var current = document.documentElement.getAttribute('data-theme');
+  var next = current === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  localStorage.setItem('theme', next);
+  $(this).find('i').toggleClass('fa-moon fa-sun');
 });
 
 /*
-  $(document).keyup(function(...) {...});
-    On keyup: Assign [ESC] key to close messages or modals
- */
-$(document).keyup(function(event) {
-  if (event.keyCode === 27) {}
-  
-  return;
+  Update theme icon when navbar loads
+*/
+$(document).on('DOMNodeInserted', '#navTop', function() {
+  var theme = document.documentElement.getAttribute('data-theme');
+  if (theme === 'dark') {
+    $('#navButtonTheme i').removeClass('fa-moon').addClass('fa-sun');
+  }
 });
 
 /*
-  $('#navButtonExtendedmenu').click(function() {...});
-    On click: Button/Toggle special menu items
- */
-$('#navButtonExtendedmenu').click(function() {
-  ipcRenderer.send('app:debug', "#navButtonExtendedmenu was clicked");
-  $('#navButtonExtendedmenu').toggleClass('is-active');
-  $('.is-specialmenu').toggleClass('is-hidden');
-
-  return;
+  Minimize window button
+*/
+$(document).on('click', '#navButtonMinimize', async function() {
+  const win = getTauriWindow();
+  if (win?.minimize) await win.minimize();
 });
 
 /*
-  $('#navButtonMinimize').click(function() {...});
-    On click: Minimize window button
- */
-$('#navButtonMinimize').click(function() {
-  ipcRenderer.send('app:debug', "#navButtonMinimize was clicked");
-  remote.getCurrentWindow().minimize();
-
-  return;
-});
-
-/*
-  $('#navButtonExit').click(function() {...});
-    On click: Close main window button
- */
-$('#navButtonExit').click(function() {
-  ipcRenderer.send('app:debug', "#navButtonExit was clicked");
-  remote.getCurrentWindow().close();
-
-  return;
+  Close main window button
+*/
+$(document).on('click', '#navButtonExit', async function() {
+  const win = getTauriWindow();
+  if (win?.close) await win.close();
 });

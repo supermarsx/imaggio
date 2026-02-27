@@ -27,3 +27,4 @@ rfd = "0.15"
 image = { version = "0.25", default-features = true }
 lopdf = "0.39"
 pdf-extract = "0.10"
+printpdf = "0.7"
